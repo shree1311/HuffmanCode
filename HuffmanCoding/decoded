@@ -1,0 +1,67 @@
+Queue<CharFreq> source = new Queue<CharFreq>();
+    Queue<TreeNode> target = new Queue<TreeNode>();
+        for (int i = 0; i < sortedCharFreqList.size(); i++) {
+            source.enqueue(sortedCharFreqList.get(i));
+        }
+
+        while (!(source.isEmpty() && target.size() == 1)) {
+            TreeNode leftNode = new TreeNode();
+            TreeNode rightNode = new TreeNode();
+
+            // left node work
+            if (!source.isEmpty() && target.size() < 1) {
+                leftNode.setData(source.dequeue());
+            } else if (source.isEmpty() && target.size() > 1) {
+                leftNode.setData(target.peek().getData());
+                leftNode.setLeft(target.peek().getLeft());
+                leftNode.setRight(target.peek().getRight());
+                target.dequeue();
+            } else {
+                double sourceProb = source.peek().getProbOcc();
+                double targetProb = target.peek().getData().getProbOcc();
+                if (sourceProb <= targetProb) {
+                    leftNode.setData(source.dequeue());
+                } else if (!source.isEmpty() && target.size() >=1) {
+                    leftNode.setData(target.peek().getData());
+                    leftNode.setLeft(target.peek().getLeft());
+                    leftNode.setRight(target.peek().getRight());
+                    target.dequeue();
+                }
+            }
+
+            // right node work
+            if (!source.isEmpty() && target.size() < 1) {
+                rightNode.setData(source.dequeue());
+            } else if (source.isEmpty() && target.size() > 1) {
+                rightNode.setData(target.peek().getData());
+                rightNode.setLeft(target.peek().getLeft());
+                rightNode.setRight(target.peek().getRight());
+                target.dequeue();
+            } else if (!source.isEmpty() && target.size() >=1) {
+                double sourceProb = source.peek().getProbOcc();
+                double targetProb = target.peek().getData().getProbOcc();
+
+                if (sourceProb <= targetProb) {
+                    rightNode.setData(source.dequeue());
+                } else {
+                    rightNode.setData(target.peek().getData());
+                    rightNode.setLeft(target.peek().getLeft());
+                    rightNode.setRight(target.peek().getRight());
+                    target.dequeue();
+                }
+            }
+            
+            //getting new probOcc
+            double newFreq = leftNode.getData().getProbOcc() + rightNode.getData().getProbOcc();
+
+            //creating new CharFreq
+            CharFreq newCharFreq = new CharFreq(null, newFreq);
+
+            // Creating new TreeNode
+            TreeNode newNode = new TreeNode(newCharFreq, leftNode, rightNode);
+
+            // Adding TreeNode to target
+            target.enqueue(newNode);
+        }
+
+        huffmanRoot = target.peek();
